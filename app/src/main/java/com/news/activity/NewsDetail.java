@@ -16,7 +16,7 @@ import androidx.lifecycle.ViewModelProviders;
 import com.google.gson.Gson;
 import com.news.R;
 import com.news.response.NotificationResponse;
-import com.news.viewmodel.viewModel;
+import com.news.viewmodel.MyViewModel;
 import java.util.Objects;
 
 @SuppressWarnings("deprecation")
@@ -32,14 +32,14 @@ public class NewsDetail extends AppCompatActivity {
         setContentView(R.layout.news_detail);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         webView = findViewById(R.id.webView);
-        viewModel viewModel = ViewModelProviders.of(NewsDetail.this).get(com.news.viewmodel.viewModel.class);
+        MyViewModel myViewModel = ViewModelProviders.of(NewsDetail.this).get(MyViewModel.class);
         String value = getIntent().getStringExtra("GSON");
 
         news = new Gson().fromJson(value, com.newsapi.model.NewsList.class);
         progressBar = findViewById(R.id.progressBar);
 
         if (news.getUrlToImage() != null && !news.getUrlToImage().isEmpty()){
-            viewModel.push(news.getTitle(),"News",news.getUrl(),news.getUrlToImage()).observe(this, new Observer<NotificationResponse>() {
+            myViewModel.push(news.getTitle(),"News",news.getUrl(),news.getUrlToImage()).observe(this, new Observer<NotificationResponse>() {
                 @Override
                 public void onChanged(NotificationResponse notificationResponse) {
                     if (notificationResponse != null){
@@ -50,7 +50,7 @@ public class NewsDetail extends AppCompatActivity {
                 }
             });
         }else{
-            viewModel.pushWithoutImage(news.getTitle(),"News",news.getUrl()).observe(this, new Observer<NotificationResponse>() {
+            myViewModel.pushWithoutImage(news.getTitle(),"News",news.getUrl()).observe(this, new Observer<NotificationResponse>() {
                 @Override
                 public void onChanged(NotificationResponse notificationResponse) {
                     if (notificationResponse != null){

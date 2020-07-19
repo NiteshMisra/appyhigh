@@ -1,5 +1,6 @@
 package com.news.repository;
 
+import android.util.Log;
 import androidx.lifecycle.MutableLiveData;
 import com.news.model.Contents;
 import com.news.model.Data;
@@ -8,11 +9,11 @@ import com.news.response.LocationResponse;
 import com.news.response.NewsResponse;
 import com.news.response.NotificationResponse;
 import com.news.rest.RetrofitClient;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import retrofit2.Call;
-import retrofit2.Callback;
+import java.util.Objects;
 import retrofit2.Response;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class Repository {
 
@@ -24,47 +25,61 @@ public class Repository {
 
     public MutableLiveData<NewsResponse> fetchNews(String location){
         final MutableLiveData<NewsResponse> newsResponseMutableLiveData = new MutableLiveData<>();
-        retrofitClient.getApi().getNewsList(location,"eddad92b139e49ed879fabcc3db48091").enqueue(new Callback<NewsResponse>() {
-            @Override
-            public void onResponse(@Nullable Call<NewsResponse> call,@Nullable Response<NewsResponse> response) {
-                assert response != null;
-                if (response.isSuccessful()){
-                    NewsResponse newsResponse = response.body();
-                    assert newsResponse != null;
-                    if (newsResponse.getTotalResults() > 0){
-                        newsResponseMutableLiveData.postValue(newsResponse);
-                    }else{
+
+        retrofitClient.getApi().getNewsList(location,"eddad92b139e49ed879fabcc3db48091")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Response<NewsResponse>>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("response", Objects.requireNonNull(e.getMessage()));
                         newsResponseMutableLiveData.postValue(null);
                     }
-                }
-            }
 
-            @Override
-            public void onFailure(@Nullable Call<NewsResponse> call,@Nullable Throwable t) {
-                newsResponseMutableLiveData.postValue(null);
-            }
-        });
+                    @Override
+                    public void onNext(Response<NewsResponse> response) {
+                        if (response.isSuccessful()){
+                            newsResponseMutableLiveData.postValue(response.body());
+                        }else {
+                            newsResponseMutableLiveData.postValue(null);
+                        }
+
+                    }
+                });
+
         return newsResponseMutableLiveData;
     }
 
     public MutableLiveData<LocationResponse> getLocation(){
-        final MutableLiveData<LocationResponse> locationResponseMutableLiveData = new MutableLiveData<>();
-        retrofitClient.getLocationApi().getLocation().enqueue(new Callback<LocationResponse>() {
-            @Override
-            public void onResponse(@Nullable Call<LocationResponse> call,@Nullable Response<LocationResponse> response) {
-                assert response != null;
-                if (response.isSuccessful()){
-                    locationResponseMutableLiveData.postValue(response.body());
-                }else{
-                    locationResponseMutableLiveData.postValue(null);
-                }
-            }
+        MutableLiveData<LocationResponse> locationResponseMutableLiveData = new MutableLiveData<>();
+        retrofitClient.getLocationApi().getLocation()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Response<LocationResponse>>() {
+                    @Override
+                    public void onCompleted() {
+                    }
 
-            @Override
-            public void onFailure(@Nullable Call<LocationResponse> call,@Nullable Throwable t) {
-                locationResponseMutableLiveData.postValue(null);
-            }
-        });
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("response", Objects.requireNonNull(e.getMessage()));
+                        locationResponseMutableLiveData.postValue(null);
+                    }
+
+                    @Override
+                    public void onNext(Response<LocationResponse> response) {
+                        if (response.isSuccessful()){
+                            locationResponseMutableLiveData.postValue(response.body());
+                        }else{
+                            locationResponseMutableLiveData.postValue(null);
+                        }
+
+                    }
+                });
         return locationResponseMutableLiveData;
     }
 
@@ -82,17 +97,30 @@ public class Repository {
 
             retrofitClient.pushApi().pushNotification("Basic ZWMwYWYyOTQtZmUxNy00MjJmLThhZWUtY2Y4Y2JiZTRhYmJh",
                     "application/json; charset=utf-8",
-                    notify).enqueue(new Callback<NotificationResponse>() {
-                @Override
-                public void onResponse(@NotNull Call<NotificationResponse> call, @NotNull Response<NotificationResponse> response) {
-                    response1.postValue(response.body());
-                }
+                    notify).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<Response<NotificationResponse>>() {
+                        @Override
+                        public void onCompleted() {
+                        }
 
-                @Override
-                public void onFailure(@NotNull Call<NotificationResponse> call, @NotNull Throwable t) {
-                    response1.postValue(null);
-                }
-            });
+                        @Override
+                        public void onError(Throwable e) {
+                            Log.e("response", Objects.requireNonNull(e.getMessage()));
+                            response1.postValue(null);
+                        }
+
+                        @Override
+                        public void onNext(Response<NotificationResponse> response) {
+                            if (response.isSuccessful()){
+                                response1.postValue(response.body());
+                            }else {
+                                response1.postValue(null);
+                            }
+
+                        }
+                    });
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -112,17 +140,30 @@ public class Repository {
 
             retrofitClient.pushApi().pushNotification("Basic ZWMwYWYyOTQtZmUxNy00MjJmLThhZWUtY2Y4Y2JiZTRhYmJh",
                     "application/json; charset=utf-8",
-                    notify).enqueue(new Callback<NotificationResponse>() {
-                @Override
-                public void onResponse(@NotNull Call<NotificationResponse> call, @NotNull Response<NotificationResponse> response) {
-                    response1.postValue(response.body());
-                }
+                    notify).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Observer<Response<NotificationResponse>>() {
+                        @Override
+                        public void onCompleted() {
+                        }
 
-                @Override
-                public void onFailure(@NotNull Call<NotificationResponse> call, @NotNull Throwable t) {
-                    response1.postValue(null);
-                }
-            });
+                        @Override
+                        public void onError(Throwable e) {
+                            Log.e("response", Objects.requireNonNull(e.getMessage()));
+                            response1.postValue(null);
+                        }
+
+                        @Override
+                        public void onNext(Response<NotificationResponse> response) {
+                            if (response.isSuccessful()){
+                                response1.postValue(response.body());
+                            }else {
+                                response1.postValue(null);
+                            }
+
+                        }
+                    });
+
         } catch (Exception e) {
             e.printStackTrace();
         }

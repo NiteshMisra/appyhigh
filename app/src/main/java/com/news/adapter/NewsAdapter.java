@@ -51,7 +51,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
             holder.title.setText("");
         }
         if (updateCurrent.getAuthor()!= null){
-            holder.author.setText("By "+ updateCurrent.getAuthor());
+            holder.author.setText(("By "+ updateCurrent.getAuthor()));
         }else {
             holder.author.setVisibility(View.GONE);
             holder.postedOn.setPadding(0,10,0,0);
@@ -71,13 +71,10 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
             holder.cardView.setVisibility(View.GONE);
         }
 
-        holder.layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, NewsDetail.class);
-                intent.putExtra("GSON", new Gson().toJson(updateCurrent));
-                context.startActivity(intent);
-            }
+        holder.layout.setOnClickListener(v -> {
+            Intent intent = new Intent(context, NewsDetail.class);
+            intent.putExtra("GSON", new Gson().toJson(updateCurrent));
+            context.startActivity(intent);
         });
 
     }
@@ -87,7 +84,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
         return newsLists.size();
     }
 
-    class NewsViewHolder extends RecyclerView.ViewHolder{
+    static class NewsViewHolder extends RecyclerView.ViewHolder{
 
         TextView title,author,postedOn;
         ImageView imageView;
